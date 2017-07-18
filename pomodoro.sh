@@ -30,24 +30,23 @@ function pomo {
     TITLE="POMODORO TIMER"
     MESSAGE=""
     ICON="face-cool"
-    BEEP="_alarm 400 200"
-    TIMER=1500
+    TIMER=25
 
     while :
     do
         case "$1" in
         -d | --duration)
-            TIMER=$(($2*60))
+            TIMER=$2
             shift 2
             ;;
         -l | --long-break)
             MESSAGE="Long break over, back to work"
-            TIMER=900
+            TIMER=15
             shift
             ;;
         -s | --short-break)
             MESSAGE="Short break over, back to work"
-            TIMER=300
+            TIMER=5
             shift
             ;;
         -*)
@@ -66,23 +65,16 @@ function pomo {
         MESSAGE="Time to take a break"
     fi
 
-    echo -e "${RED}TIMER SET FOR $(($TIMER/60)) MINUTES"
+    echo -e "${RED}TIMER SET FOR $TIMER MINUTES $(date) -> $(date -v +${TIMER}M) ${NC}"
 
     # LINUX users
     if [[ "$(uname)" == "Linux" ]]; then
-        eval "(sleep $TIMER && notify-send '$TITLE' '$MESSAGE' --icon=$ICON && $BEEP &)"
+        sleep $((TIMER *60)) && notify-send "$TITLE" "$MESSAGE" --icon=$ICON
     # MAC users
     elif [[ "$(uname)" == "Darwin" ]]; then
-        eval "(sleep $TIMER && terminal-notifier -message '$MESSAGE' -title 'Pomodoro' --subtitle '$TITLE' && $BEEP &)"
+        sleep $((TIMER * 60)) && terminal-notifier -message "$MESSAGE" -title 'Pomodoro' --subtitle "$TITLE" -sound
     else
         echo "Sorry! Only Linux or Mac";
     fi
 }
 
-_alarm() {
-    if [[ "$(uname)" == "Linux" ]]; then
-        paplay notification.ogg
-    elif [[ "$(uname)" == "Darwin" ]]; then
-        say -v bells 'beep'
-    fi
-}
