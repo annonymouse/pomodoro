@@ -78,3 +78,4 @@ function pomo {
     fi
 }
 
+pomo "$@"
